@@ -1,0 +1,9 @@
+Seondary programs needed to run Raspberry Pi components:
+
+aircrack-ng
+tcpdump
+inotify-tools
+
+The project overall is designed to monitor and detect deauth attacks aimed at your home network. Once a 
+deauthentication attack is detected it will send a notification to the synced Android application with 
+details of the attack.
