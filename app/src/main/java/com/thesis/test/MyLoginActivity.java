@@ -172,6 +172,7 @@ public class MyLoginActivity extends AppCompatActivity implements OnClickListene
         Intent profileIntent = new Intent(this,  MainActivity.class);
       //  profileIntent.putExtra("email",curUser.getEmail());
         startActivity(profileIntent);
+        finish();
     }
 
     private void writeNewUser(String userId, String name, String email) {
