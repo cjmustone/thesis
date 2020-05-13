@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 
 public class MyLoginActivity extends AppCompatActivity implements OnClickListener {
@@ -30,6 +32,7 @@ public class MyLoginActivity extends AppCompatActivity implements OnClickListene
     private Button signUpButton;
     private EditText emailText;
     private EditText passText;
+    private TextView signupText;
     private DatabaseReference mDatabase;
     String test = "test";
 
@@ -46,6 +49,8 @@ public class MyLoginActivity extends AppCompatActivity implements OnClickListene
         signUpButton = findViewById(R.id.buttonSignUp);
         emailText = findViewById(R.id.editEmail);
         passText = findViewById(R.id.editPassword);
+        signupText = findViewById(R.id.signupText);
+        signupText.setText(signupText.getText());
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -65,45 +70,6 @@ public class MyLoginActivity extends AppCompatActivity implements OnClickListene
         }
     }
 
-    //TODO: RaspPi Link when creating
-    private void createAccount(String email, String password) {
-        Log.d(test, "createAccount:" + email);
-        if (!validateForm()) {
-            return;
-        }
-
-        //showProgressBar();
-
-        // [START create_user_with_email]
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(test, "createUserWithEmail:success");
-
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            //TODO: Sync with Pi
-                            writeNewUser(user.getUid(),user.getDisplayName(),user.getEmail());
-
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(test, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(MyLoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // [START_EXCLUDE]
-                       // hideProgressBar();
-                        // [END_EXCLUDE]
-                    }
-                });
-        // [END create_user_with_email]
-    }
-
     private void signIn(String email, String password) {
         Log.d(test, "signIn:" + email);
         if (!validateForm()) {
@@ -121,6 +87,8 @@ public class MyLoginActivity extends AppCompatActivity implements OnClickListene
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(test, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            String token = FirebaseInstanceId.getInstance().getToken();
+                            mDatabase.child("users").child(user.getUid()).child("token").setValue(token);
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -169,18 +137,18 @@ public class MyLoginActivity extends AppCompatActivity implements OnClickListene
 
 
     public void updateUI(FirebaseUser curUser){
-        Intent profileIntent = new Intent(this,  MainActivity.class);
-      //  profileIntent.putExtra("email",curUser.getEmail());
-        startActivity(profileIntent);
-        finish();
+        if (curUser == null){
+            Intent profileIntent = new Intent(this,  MyLoginActivity.class);
+            startActivity(profileIntent);
+            finish();
+        } else {
+            Intent profileIntent = new Intent(this,  MainActivity.class);
+            //  profileIntent.putExtra("email",curUser.getEmail());
+            startActivity(profileIntent);
+            finish();
+        }
     }
 
-    private void writeNewUser(String userId, String name, String email) {
-        User user = new User(name, email);
-        //TODO: SYNC WITH PI VIA SERIAL CONNNECTION Activit
-        //TODO: Return Data, load data to database
-        mDatabase.child("users").child(userId).setValue(email);
-    }
 
     /*
     private void onAuthSuccess(FirebaseUser user) {
@@ -203,9 +171,10 @@ public class MyLoginActivity extends AppCompatActivity implements OnClickListene
             signIn(emailText.getText().toString(), passText.getText().toString());
         } else if (clickedId == R.id.buttonSignUp){
             //TODO: RaspPi Link when creating
-            createAccount(emailText.getText().toString(),passText.getText().toString());
+            //createAccount(emailText.getText().toString(),passText.getText().toString());
+            Intent profileIntent = new Intent(this,  SignUpActivity.class);
+            startActivity(profileIntent);
+            finish();
         }
     }
-
-
 }

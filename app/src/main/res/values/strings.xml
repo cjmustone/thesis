@@ -13,4 +13,7 @@
     <string name="signup">Sign Up</string>
     <string name="signout">Sign Out</string>
     <string name="welcomeh2">Home wifi monitoring on the go</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
